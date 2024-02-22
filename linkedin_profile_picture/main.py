@@ -12,8 +12,8 @@ class ProfilePicture(object):
         """
             To get clean linkedin id
             Example: 
-                Input  : linkedin.com/in/shashank-deshpande/
-                Output : shashank-deshpande
+                Input  : linkedin.com/in/manuotel/
+                Output : manuotel
         """
         linkedin_id = link
         match = re.findall(r'\/in\/([^\/]+)\/?', urlparse(link).path)
@@ -43,20 +43,11 @@ class ProfilePicture(object):
             linkedin_url = i.get("link","")
             search_id = self.extract_id(linkedin_url)
             if search_id == linkedin_id:
-                metatags = i.get("pagemap",{}).get("metatags", [])
-                metatags = sum(list(map(lambda mt: list(dict(filter(lambda x: "image" in x[1], mt.items())).values()), metatags)), [])
-
-                # cse_imgs = i.get("pagemap",{}).get("cse_image", [])
-                # cse_imgs = list(filter(None, map(lambda x:x.get("src"), cse_imgs)))
-
-                # pic_urls = set(metatags + cse_imgs)
-                pic_urls = set(metatags)
-                for url in pic_urls:
-                    if self._check_picture_url(url) and self._check_url_exists(url):
-                        link = url
+                metatags = i["pagemap"]["metatags"][0]
+                if "og:image" in metatags and "media.licdn.com" in metatags["og:image"]:
+                    if self._check_url_exists(metatags["og:image"]):
+                        link = metatags["og:image"]
                         break
-            if link:
-                break
         return link
 
     def search(self, link: str) -> object:
